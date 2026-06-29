@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zometool 消息通知中心一期原型</title>
+  <style>
+    :root {
+      --phone-w: 932px;
+      --phone-h: 460px;
+      --blue: #315DFF;
+      --blue-soft: #EDF2FF;
+      --ink: #172033;
+      --muted: #758095;
+      --line: #E9EDF5;
+      --bg: #EEF2F8;
+      --card: #FFFFFF;
+      --green: #22B573;
+      --orange: #FF9D2E;
+      --red: #FF4D5E;
+      --purple: #7657FF;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at 30% 20%, #F8FAFF 0, #DCE5F4 45%, #C8D3E5 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+    }
+    .stage { padding: 28px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+    .outside-entry { width: var(--phone-w); display: flex; justify-content: flex-end; align-items: center; gap: 12px; color: #4B5874; font-weight: 800; }
+    .entry-btn { position: relative; width: 52px; height: 52px; border-radius: 22px; background: rgba(255,255,255,.92); display: grid; place-items: center; font-size: 24px; box-shadow: 0 16px 38px rgba(23,32,51,.16); border: 1px solid rgba(255,255,255,.95); }
+    .entry-dot { position: absolute; right: -2px; top: -3px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: #F04452; color: #fff; font-size: 12px; font-weight: 900; display: grid; place-items: center; border: 3px solid #EEF2F8; }
+    .phone { width: var(--phone-w); height: var(--phone-h); border-radius: 52px; background: #0D1320; padding: 12px; box-shadow: 0 30px 80px rgba(23,32,51,.35), inset 0 0 0 2px rgba(255,255,255,.08); position: relative; }
+    .phone::before { content: ""; position: absolute; left: 50%; top: 8px; transform: translateX(-50%); width: 118px; height: 18px; border-radius: 0 0 14px 14px; background: #0D1320; z-index: 5; }
+    .screen { width: 100%; height: 100%; border-radius: 42px; overflow: hidden; background: var(--bg); position: relative; }
+    .content { width: 100%; height: 100%; padding: 22px 24px 18px; display: grid; grid-template-rows: auto 1fr; gap: 14px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; padding-right: 4px; }
+    .topbar h1 { margin: 0; font-size: 24px; letter-spacing: -.5px; }
+    .actions { display: flex; gap: 10px; align-items: center; }
+    button { border: 0; border-radius: 999px; height: 34px; padding: 0 14px; background: #fff; color: #43506A; font-weight: 800; cursor: pointer; box-shadow: 0 6px 18px rgba(23,32,51,.08); }
+    button.primary { background: var(--blue); color: #fff; }
+    .workspace { display: grid; grid-template-columns: 220px 1fr; gap: 14px; min-height: 0; }
+    .message-panel { min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+    .panel-hint { display: flex; justify-content: space-between; align-items: center; color: #66738D; font-size: 12px; padding: 0 4px; }
+    .list { overflow: auto; padding-right: 2px; min-height: 0; }
+    .list::-webkit-scrollbar { width: 0; }
+    .right-nav { background: transparent; border: 0; border-radius: 0; padding: 18px 4px; box-shadow: none; display: flex; flex-direction: column; justify-content: flex-start; gap: 14px; min-height: 0; z-index: 3; }
+    .right-nav h2 { margin: 0 0 4px; font-size: 16px; }
+    .right-nav p { margin: 0 0 8px; color: var(--muted); font-size: 11px; line-height: 1.45; }
+    .nav-tab { min-height: 74px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; cursor: pointer; border: 2px solid rgba(49,93,255,.18); transition: .18s ease; box-shadow: 0 12px 28px rgba(38,49,76,.16); }
+    .nav-tab.active { background: var(--blue); border-color: var(--blue); box-shadow: 0 16px 34px rgba(49,93,255,.26); }
+    .nav-tab .name { display: flex; flex-direction: column; gap: 3px; font-weight: 900; color: #44506A; }
+    .nav-tab.active .name { color: #fff; }
+    .nav-tab small { color: var(--muted); font-weight: 700; font-size: 10px; }
+    .nav-tab.active small { color: rgba(255,255,255,.82); }
+    .count { min-width: 25px; height: 25px; padding: 0 7px; border-radius: 999px; background: #fff; color: #66738D; display: grid; place-items: center; font-size: 12px; font-weight: 900; }
+    .nav-tab.active .count { background: rgba(255,255,255,.95); color: var(--blue); }
+    .swipe-row { position: relative; margin-bottom: 10px; border-radius: 24px; overflow: hidden; touch-action: pan-y; background: transparent; }
+    .delete-action { position: absolute; right: 0; top: 0; bottom: 0; width: 82px; height: 100%; margin: 0; padding: 0; border: 0; border-radius: 0 24px 24px 0; background: var(--red); color: #fff; box-shadow: none; font-weight: 900; z-index: 1; display: flex; align-items: center; justify-content: center; transform: translateX(86px); transition: transform .18s ease; }
+    .swipe-row.open .delete-action, .swipe-row.swiping .delete-action { transform: translateX(0); }
+    .card { width: 100%; background: rgba(255,255,255,.94); border: 1px solid rgba(255,255,255,.95); border-radius: 24px; padding: 12px 14px; display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 12px; align-items: center; box-shadow: 0 10px 28px rgba(38,49,76,.08); cursor: pointer; position: relative; z-index: 2; transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; will-change: transform; }
+    .swipe-row.open .card { transform: translateX(-82px); }
+    .card.unread::after { content: ""; position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+    .card.selected { border-color: rgba(49,93,255,.34); box-shadow: 0 12px 30px rgba(49,93,255,.15); }
+    .thumb { width: 48px; height: 48px; border-radius: 17px; display: grid; place-items: center; font-size: 23px; background: #F1F4FA; }
+    .thumb.blue { background: linear-gradient(135deg, #DDE7FF, #B6CAFF); }
+    .thumb.green { background: linear-gradient(135deg, #DDF9EA, #A9E9CB); }
+    .thumb.orange { background: linear-gradient(135deg, #FFF0D8, #FFD19A); }
+    .thumb.purple { background: linear-gradient(135deg, #EEE8FF, #C7BAFF); }
+    .card h3 { margin: 0; font-size: 15px; line-height: 1.22; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card.unread h3 { font-weight: 900; }
+    .card p { margin: 5px 0 0; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .meta { text-align: right; color: var(--muted); font-size: 11px; display: flex; flex-direction: column; align-items: flex-end; gap: 7px; }
+    .pill { border-radius: 999px; padding: 4px 8px; font-size: 11px; font-weight: 900; white-space: nowrap; }
+    .pill.system { color: var(--blue); background: var(--blue-soft); }
+    .pill.feedback { color: #15845A; background: #E6F8EF; }
+    .toast { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%) translateY(20px); background: rgba(13,19,32,.88); color: #fff; border-radius: 999px; padding: 9px 16px; font-size: 13px; font-weight: 800; opacity: 0; pointer-events: none; transition: .2s ease; z-index: 10; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .hint-pop { position: fixed; z-index: 20; max-width: 290px; padding: 12px 14px; border-radius: 16px; background: rgba(13,19,32,.92); color: #fff; font-size: 12px; line-height: 1.55; box-shadow: 0 16px 40px rgba(13,19,32,.28); opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity .18s ease, transform .18s ease; }
+    .hint-pop.show { opacity: 1; transform: translateY(0); }
+    .hint-pop strong { display: block; font-size: 13px; margin-bottom: 4px; }
+    .hint-pop .logic { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,.18); color: rgba(255,255,255,.86); }
+    .hint-pop .logic b { color: #fff; }
+    @media (max-width: 980px) { .stage { transform: scale(.86); } }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="outside-entry">
+      <span>消息通知入口</span>
+      <div class="entry-btn hintable" data-hint-title="消息通知入口" data-hint="展示未读红点。点击入口后进入消息通知中心。" data-logic="未读数 > 0 时显示红点；点击消息或全部已读后更新红点。">🔔<span class="entry-dot" id="sideBadge">8</span></div>
+    </div>
+    <div class="phone">
+      <div class="screen">
+        <main class="content">
+          <header class="topbar">
+            <h1>消息通知</h1>
+            <div class="actions">
+              <button id="markRead" class="hintable" data-hint-title="全部已读" data-hint="将所有未读消息标记为已读。" data-logic="批量更新 read_status=read，并同步刷新入口未读数。">全部已读</button>
+              <button class="primary hintable" id="refresh" data-hint-title="刷新" data-hint="重新拉取最新消息和未读状态。" data-logic="按服务端最新 created_at 和 read_status 重新渲染。">刷新</button>
+            </div>
+          </header>
+          <section class="workspace">
+            <aside class="right-nav hintable" data-hint-title="左侧分类导航" data-hint="用于切换消息列表的分类，不再展示详情区。" data-logic="选择导航后只刷新右侧消息列表；默认选中当前分类最新未读消息。">
+              <div class="nav-tab active hintable" data-tab="all" data-hint-title="全部" data-hint="展示系统和互动反馈全部消息。" data-logic="不额外过滤 category，按 created_at 倒序排列。"><span class="name">📬 全部<small>所有消息</small></span><span class="count">12</span></div>
+              <div class="nav-tab hintable" data-tab="system" data-hint-title="系统" data-hint="展示 UGC 更新、营销、造型库、课程、审核和成就类消息。" data-logic="筛选 category=system；UGC 更新归入系统类。"><span class="name">🔔 系统<small>更新/审核/成就</small></span><span class="count">6</span></div>
+              <div class="nav-tab hintable" data-tab="feedback" data-hint-title="互动反馈" data-hint="展示造型库和作品圈的互动反馈。" data-logic="筛选 category=interaction；标题用 [造型库]/[作品圈] 标记来源。"><span class="name">💬 互动反馈<small>点赞/收藏/评论</small></span><span class="count">6</span></div>
+            </aside>
+            <div class="message-panel">
+              <div class="panel-hint"><span id="listTitle">全部消息</span><span>左滑消息可删除</span></div>
+              <div class="list" id="list"></div>
+            </div>
+          </section>
+        </main>
+        <div class="toast" id="toast">已全部标记为已读</div>
+        <div class="hint-pop" id="hintPop"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+const messages = [
+  {id:1, tab:'system', unread:true, icon:'🎯', color:'orange', title:'新一期活动招募开始啦', text:'「太空基地拼搭挑战」正在招募中，快来查看活动要求', time:'刚刚', tag:'系统'},
+  {id:2, tab:'feedback', unread:true, icon:'👍', color:'green', title:'[作品圈] 你的作品收到了 18 个赞', text:'「星际塔台」收到了新的点赞，来自乐乐、豆豆等小伙伴', time:'8分钟前', tag:'互动反馈'},
+  {id:3, tab:'feedback', unread:true, icon:'💬', color:'purple', title:'[作品圈] 创达人评论了你的作品', text:'“结构很稳定，顶部造型也很有创意！”', time:'16分钟前', tag:'互动反馈'},
+  {id:4, tab:'system', unread:true, icon:'🆕', color:'blue', title:'新的造型上线了', text:'「旋转摩天轮」已加入造型库', time:'32分钟前', tag:'系统'},
+  {id:5, tab:'feedback', unread:true, icon:'🧱', color:'green', title:'[造型库] 有人跟拼了你的造型', text:'「三角桥梁」有 3 个新的跟拼作品', time:'1小时前', tag:'互动反馈'},
+  {id:6, tab:'system', unread:false, icon:'📚', color:'blue', title:'新课程上线了', text:'「稳定结构入门课」已上线', time:'2小时前', tag:'系统'},
+  {id:7, tab:'feedback', unread:true, icon:'⭐', color:'orange', title:'[造型库] 你的造型被收藏了 9 次', text:'「彩虹穹顶」收到了新的收藏', time:'今天 10:24', tag:'互动反馈'},
+  {id:8, tab:'system', unread:false, icon:'🏅', color:'purple', title:'你获得了 V 标', text:'你的主页已展示新的身份标识', time:'昨天 18:30', tag:'系统'},
+  {id:9, tab:'feedback', unread:false, icon:'🔁', color:'green', title:'[作品圈] 你的作品被分享了 6 次', text:'「机械飞鸟」被分享给更多人', time:'昨天 16:12', tag:'互动反馈'},
+  {id:10, tab:'system', unread:false, icon:'🖼️', color:'orange', title:'新作品集上线了', text:'「城市建筑灵感集」已上线', time:'昨天 14:05', tag:'系统'},
+  {id:11, tab:'system', unread:false, icon:'⚠️', color:'orange', title:'作品暂未通过审核', text:'「高塔挑战」未通过审核，请查看原因', time:'周一', tag:'系统'},
+  {id:12, tab:'feedback', unread:false, icon:'👥', color:'purple', title:'[作品圈] 你有新的粉丝', text:'安安、木木等 5 人关注了你', time:'周一', tag:'互动反馈'}
+];
+let currentTab = 'all';
+let currentId = null;
+let openSwipeId = null;
+let dragState = null;
+const list = document.getElementById('list');
+const toast = document.getElementById('toast');
+const sideBadge = document.getElementById('sideBadge');
+const listTitle = document.getElementById('listTitle');
+const hintPop = document.getElementById('hintPop');
+let hintTimer = null;
+function filtered(){ return currentTab === 'all' ? messages : messages.filter(m => m.tab === currentTab); }
+function pickDefaultMessage(){ const data = filtered(); return data.find(m => m.unread) || data[0] || null; }
+function ensureCurrentMessage(){ const data = filtered(); if(!data.length){ currentId = null; return; } if(!data.find(m => m.id === currentId)) currentId = pickDefaultMessage().id; }
+function renderList(){
+  ensureCurrentMessage();
+  const data = filtered();
+  listTitle.textContent = currentTab === 'all' ? '全部消息' : currentTab === 'system' ? '系统消息' : '互动反馈';
+  if(!data.length){ list.innerHTML = '<div style="height:100%;display:grid;place-items:center;color:#758095;font-weight:800;">暂无消息</div>'; return; }
+  list.innerHTML = data.map(m => `
+    <div class="swipe-row ${openSwipeId === m.id ? 'open' : ''}" data-id="${m.id}">
+      <button class="delete-action" data-id="${m.id}">删除</button>
+      <article class="card ${m.unread ? 'unread' : ''} ${currentId === m.id ? 'selected' : ''} hintable" data-id="${m.id}" data-hint-title="消息条" data-hint="点击消息条可标记已读；左滑可露出删除按钮。" data-logic="点击后只更新当前消息状态，不进入详情页；列表承载主要浏览操作。">
+        <div class="thumb ${m.color}">${m.icon}</div>
+        <div><h3>${m.title}</h3><p>${m.text}</p></div>
+        <div class="meta"><span>${m.time}</span><span class="pill ${m.tab === 'system' ? 'system' : 'feedback'}">${m.tag}</span></div>
+      </article>
+    </div>`).join('');
+  document.querySelectorAll('.card').forEach(card => card.onclick = () => {
+    if(dragState && dragState.moved) return;
+    const id = Number(card.dataset.id);
+    if(openSwipeId && openSwipeId !== id){ openSwipeId = null; renderList(); return; }
+    if(openSwipeId === id){ openSwipeId = null; renderList(); return; }
+    selectMessage(id);
+  });
+  document.querySelectorAll('.delete-action').forEach(btn => btn.onclick = e => { e.stopPropagation(); deleteMessage(Number(btn.dataset.id)); });
+  bindSwipeRows(); bindHints();
+}
+function bindSwipeRows(){
+  document.querySelectorAll('.swipe-row').forEach(row => {
+    const card = row.querySelector('.card');
+    card.addEventListener('pointerdown', e => { dragState = { id:Number(row.dataset.id), startX:e.clientX, startY:e.clientY, moved:false }; card.setPointerCapture?.(e.pointerId); });
+    card.addEventListener('pointermove', e => {
+      if(!dragState || dragState.id !== Number(row.dataset.id)) return;
+      const dx = e.clientX - dragState.startX, dy = e.clientY - dragState.startY;
+      if(Math.abs(dy) > 18 && Math.abs(dy) > Math.abs(dx)) return;
+      if(dx < -6 || (openSwipeId === dragState.id && dx > 6)) { dragState.moved = true; row.classList.add('swiping'); const base = openSwipeId === dragState.id ? -82 : 0; const next = Math.max(-82, Math.min(0, base + dx)); card.style.transform = `translateX(${next}px)`; }
+    });
+    card.addEventListener('pointerup', e => {
+      if(!dragState || dragState.id !== Number(row.dataset.id)) return;
+      const dx = e.clientX - dragState.startX, wasMoved = dragState.moved;
+      card.style.transform = ''; row.classList.remove('swiping');
+      if(wasMoved){ if(dx < -38) openSwipeId = dragState.id; else if(dx > 28) openSwipeId = null; dragState = { moved:true }; setTimeout(()=>{dragState=null;},0); renderList(); } else dragState = null;
+    });
+  });
+}
+function selectMessage(id){ currentId = id; const m = messages.find(x => x.id === id); if(m) m.unread = false; updateBadges(); renderList(); }
+function deleteMessage(id){ const index = messages.findIndex(m => m.id === id); if(index >= 0) messages.splice(index, 1); if(currentId === id) currentId = pickDefaultMessage()?.id || null; openSwipeId = null; updateBadges(); renderList(); showToast('消息已删除'); }
+function updateBadges(){
+  const unread = messages.filter(m => m.unread).length;
+  sideBadge.textContent = unread; sideBadge.style.display = unread ? 'grid' : 'none';
+  const counts = {all:messages.length, system:messages.filter(m=>m.tab==='system').length, feedback:messages.filter(m=>m.tab==='feedback').length};
+  document.querySelectorAll('.nav-tab').forEach(t => t.querySelector('.count').textContent = counts[t.dataset.tab]);
+}
+function showToast(text){ toast.textContent = text; toast.classList.add('show'); setTimeout(()=>{toast.classList.remove('show'); toast.textContent='已全部标记为已读';},1200); }
+function bindHints(){
+  document.querySelectorAll('.hintable').forEach(el => {
+    if(el.dataset.hintBound) return; el.dataset.hintBound = '1';
+    el.addEventListener('mouseenter', e => { clearTimeout(hintTimer); hintTimer = setTimeout(()=>showHint(el,e),1000); });
+    el.addEventListener('mousemove', e => { if(hintPop.classList.contains('show')) positionHint(e); });
+    el.addEventListener('mouseleave', () => { clearTimeout(hintTimer); hideHint(); });
+  });
+}
+function showHint(el,e){ const title=el.dataset.hintTitle||'功能说明', text=el.dataset.hint||'暂无说明', logic=el.dataset.logic||'按当前模块规则处理。'; hintPop.innerHTML=`<strong>${title}</strong>${text}<div class="logic"><b>逻辑：</b>${logic}</div>`; positionHint(e); hintPop.classList.add('show'); }
+function positionHint(e){ const pad=14, rectW=290; const x=Math.min(window.innerWidth-rectW-pad,e.clientX+14); const y=Math.min(window.innerHeight-100,e.clientY+16); hintPop.style.left=Math.max(pad,x)+'px'; hintPop.style.top=Math.max(pad,y)+'px'; }
+function hideHint(){ hintPop.classList.remove('show'); }
+document.querySelectorAll('.nav-tab').forEach(t => t.onclick = () => { currentTab=t.dataset.tab; document.querySelectorAll('.nav-tab').forEach(x=>x.classList.toggle('active',x===t)); currentId = pickDefaultMessage()?.id || null; openSwipeId=null; renderList(); });
+document.getElementById('markRead').onclick = () => { messages.forEach(m=>m.unread=false); updateBadges(); renderList(); showToast('已全部标记为已读'); };
+document.getElementById('refresh').onclick = () => showToast('消息已刷新');
+currentId = pickDefaultMessage()?.id || null; updateBadges(); renderList(); bindHints();
+</script>
+</body>
+</html>
