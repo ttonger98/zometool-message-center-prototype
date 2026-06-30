@@ -37,17 +37,19 @@
     .phone { width: var(--phone-w); height: var(--phone-h); border-radius: 52px; background: #0D1320; padding: 12px; box-shadow: 0 30px 80px rgba(23,32,51,.35), inset 0 0 0 2px rgba(255,255,255,.08); position: relative; }
     .phone::before { content: ""; position: absolute; left: 50%; top: 8px; transform: translateX(-50%); width: 118px; height: 18px; border-radius: 0 0 14px 14px; background: #0D1320; z-index: 5; }
     .screen { width: 100%; height: 100%; border-radius: 42px; overflow: hidden; background: var(--bg); position: relative; }
-    .content { width: 100%; height: 100%; padding: 22px 24px 18px; display: grid; grid-template-rows: auto 1fr; gap: 14px; }
+    .content { width: 100%; height: 100%; padding: 22px 24px 18px; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 14px; overflow: hidden; }
     .topbar { display: flex; justify-content: space-between; align-items: center; padding-right: 4px; }
     .topbar h1 { margin: 0; font-size: 24px; letter-spacing: -.5px; }
     .actions { display: flex; gap: 10px; align-items: center; }
     button { border: 0; border-radius: 999px; height: 34px; padding: 0 14px; background: #fff; color: #43506A; font-weight: 800; cursor: pointer; box-shadow: 0 6px 18px rgba(23,32,51,.08); }
     button.primary { background: var(--blue); color: #fff; }
-    .workspace { display: grid; grid-template-columns: 220px 1fr; gap: 14px; min-height: 0; }
-    .message-panel { min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+    .workspace { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 14px; min-height: 0; height: 100%; overflow: hidden; }
+    .message-panel { min-width: 0; min-height: 0; height: 100%; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
     .panel-hint { display: flex; justify-content: space-between; align-items: center; color: #66738D; font-size: 12px; padding: 0 4px; }
-    .list { overflow: auto; padding-right: 2px; min-height: 0; }
-    .list::-webkit-scrollbar { width: 0; }
+    .list { flex: 1 1 auto; min-height: 0; height: 100%; overflow-y: auto; overflow-x: hidden; padding-right: 6px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+    .list::-webkit-scrollbar { width: 6px; }
+    .list::-webkit-scrollbar-thumb { background: rgba(49,93,255,.22); border-radius: 999px; }
+    .list::-webkit-scrollbar-track { background: transparent; }
     .right-nav { background: transparent; border: 0; border-radius: 0; padding: 18px 4px; box-shadow: none; display: flex; flex-direction: column; justify-content: flex-start; gap: 14px; min-height: 0; z-index: 3; }
     .right-nav h2 { margin: 0 0 4px; font-size: 16px; }
     .right-nav p { margin: 0 0 8px; color: var(--muted); font-size: 11px; line-height: 1.45; }
@@ -59,14 +61,87 @@
     .nav-tab.active small { color: rgba(255,255,255,.82); }
     .count { min-width: 25px; height: 25px; padding: 0 7px; border-radius: 999px; background: #fff; color: #66738D; display: grid; place-items: center; font-size: 12px; font-weight: 900; }
     .nav-tab.active .count { background: rgba(255,255,255,.95); color: var(--blue); }
-    .swipe-row { position: relative; margin-bottom: 10px; border-radius: 24px; overflow: hidden; touch-action: pan-y; background: transparent; }
-    .delete-action { position: absolute; right: 0; top: 0; bottom: 0; width: 82px; height: 100%; margin: 0; padding: 0; border: 0; border-radius: 0 24px 24px 0; background: var(--red); color: #fff; box-shadow: none; font-weight: 900; z-index: 1; display: flex; align-items: center; justify-content: center; transform: translateX(86px); transition: transform .18s ease; }
-    .swipe-row.open .delete-action, .swipe-row.swiping .delete-action { transform: translateX(0); }
-    .card { width: 100%; background: rgba(255,255,255,.94); border: 1px solid rgba(255,255,255,.95); border-radius: 24px; padding: 12px 14px; display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 12px; align-items: center; box-shadow: 0 10px 28px rgba(38,49,76,.08); cursor: pointer; position: relative; z-index: 2; transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; will-change: transform; }
-    .swipe-row.open .card { transform: translateX(-82px); }
+    .swipe-row { position: relative; margin-bottom: 10px; border-radius: 24px; overflow: visible; background: transparent; }
+    .delete-action { display: none; }
+    .card { width: 100%; background: rgba(255,255,255,.94); border: 1px solid rgba(255,255,255,.95); border-radius: 24px; padding: 12px 14px; display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 12px; align-items: center; box-shadow: 0 10px 28px rgba(38,49,76,.08); cursor: pointer; position: relative; z-index: 2; transition: border-color .18s ease, box-shadow .18s ease; }
     .card.unread::after { content: ""; position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
     .card.selected { border-color: rgba(49,93,255,.34); box-shadow: 0 12px 30px rgba(49,93,255,.15); }
-    .thumb { width: 48px; height: 48px; border-radius: 17px; display: grid; place-items: center; font-size: 23px; background: #F1F4FA; }
+    .thumb { width: 56px; height: 56px; border-radius: 18px; display: grid; place-items: center; font-size: 23px; background: #F1F4FA; }
+    .work-thumb { width: 56px; height: 56px; border-radius: 18px; display: grid; place-items: center; font-size: 25px; color: #fff; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); position: relative; }
+    .work-thumb::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.16)); pointer-events: none; }
+    .work-thumb.space { background: linear-gradient(135deg, #4B6BFF, #88D8FF); }
+    .work-thumb.bridge { background: linear-gradient(135deg, #22B573, #B8F2D4); }
+    .work-thumb.dome { background: linear-gradient(135deg, #FF9D2E, #FFE08A); }
+    .work-thumb.bird { background: linear-gradient(135deg, #7657FF, #E6B8FF); }
+    .work-thumb.fans { background: linear-gradient(135deg, #2D74C4, #9FD8FF); }
+    .batch-thumb { width: 56px; height: 56px; border-radius: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 3px; background: rgba(255,255,255,.9); box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); }
+    .batch-thumb span { display: grid; place-items: center; border-radius: 10px; color: #fff; font-size: 14px; }
+    .batch-thumb .a { background: linear-gradient(135deg, #4B6BFF, #88D8FF); }
+    .batch-thumb .b { background: linear-gradient(135deg, #22B573, #B8F2D4); }
+    .batch-thumb .c { background: linear-gradient(135deg, #FF9D2E, #FFE08A); }
+    .batch-thumb .d { background: linear-gradient(135deg, #7657FF, #E6B8FF); }
+    .modal-image {
+      height: 118px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 42px;
+      margin: 0 0 10px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.24), 0 8px 22px rgba(0,0,0,.18);
+      cursor: zoom-in;
+      position: relative;
+      overflow: hidden;
+    }
+    .modal-split {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 18px;
+      min-height: 220px;
+      align-items: stretch;
+    }
+    .modal-split-image {
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 74px;
+      cursor: zoom-in;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.28), 0 10px 28px rgba(0,0,0,.24);
+    }
+    .modal-split-image::after { content: "点击放大预览"; position: absolute; right: 10px; bottom: 8px; font-size: 12px; padding: 4px 8px; border-radius: 999px; background: rgba(0,0,0,.35); color: rgba(255,255,255,.9); }
+    .modal-split-info { display: flex; flex-direction: column; min-width: 0; }
+    .modal-image::after { content: "点击放大预览"; position: absolute; right: 10px; bottom: 8px; font-size: 12px; padding: 4px 8px; border-radius: 999px; background: rgba(0,0,0,.35); color: rgba(255,255,255,.9); }
+    .preview-mask {
+      position: absolute;
+      inset: 0;
+      background: rgba(3, 8, 18, .82);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 12;
+    }
+    .preview-mask.show { display: flex; }
+    .preview-box {
+      width: 680px;
+      height: 330px;
+      border-radius: 24px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 92px;
+      position: relative;
+      box-shadow: 0 24px 80px rgba(0,0,0,.5), inset 0 0 0 2px rgba(255,255,255,.22);
+      overflow: hidden;
+    }
+    .preview-box::after { content: attr(data-title); position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 18px; font-size: 18px; font-weight: 900; background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.42)); }
+    .preview-close { position: absolute; right: 28px; top: 24px; color: #fff; font-size: 38px; font-weight: 900; cursor: pointer; z-index: 13; text-shadow: 0 0 14px rgba(114,190,255,.8); }
+    .model-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 4px 0 12px; }
+    .model-item { height: 78px; border-radius: 14px; display: grid; place-items: center; color: #fff; font-size: 30px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.24); position: relative; overflow: hidden; }
+    .model-item small { position: absolute; left: 0; right: 0; bottom: 0; padding: 5px 4px; font-size: 11px; text-align: center; background: rgba(0,0,0,.28); }
+    .model-more { margin-top: -4px; color: rgba(234,244,255,.82); font-size: 13px; text-align: center; }
     .thumb.blue { background: linear-gradient(135deg, #DDE7FF, #B6CAFF); }
     .thumb.green { background: linear-gradient(135deg, #DDF9EA, #A9E9CB); }
     .thumb.orange { background: linear-gradient(135deg, #FFF0D8, #FFD19A); }
@@ -78,6 +153,142 @@
     .pill { border-radius: 999px; padding: 4px 8px; font-size: 11px; font-weight: 900; white-space: nowrap; }
     .pill.system { color: var(--blue); background: var(--blue-soft); }
     .pill.feedback { color: #15845A; background: #E6F8EF; }
+
+    .modal-mask {
+      position: absolute;
+      inset: 0;
+      background: rgba(5, 12, 28, .66);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 8;
+    }
+    .modal-mask.show { display: flex; }
+    .mail-modal {
+      width: 680px;
+      max-height: 360px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(48,78,121,.98), rgba(33,58,96,.98));
+      border: 2px solid rgba(113,172,239,.50);
+      box-shadow: 0 22px 70px rgba(0,0,0,.42), inset 0 0 0 1px rgba(255,255,255,.08);
+      position: relative;
+      padding: 22px 30px 20px;
+      color: #EAF4FF;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .mail-modal::before {
+      content: "";
+      position: absolute;
+      left: -22px;
+      top: -28px;
+      width: 190px;
+      height: 52px;
+      background: radial-gradient(circle at 30% 50%, rgba(75,161,255,.75), rgba(75,161,255,0) 70%);
+      opacity: .75;
+    }
+    .modal-close {
+      position: absolute;
+      right: 18px;
+      top: 12px;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      color: #DDF1FF;
+      font-size: 30px;
+      font-weight: 900;
+      cursor: pointer;
+      text-shadow: 0 0 14px rgba(114,190,255,.8);
+      z-index: 2;
+    }
+    .modal-title {
+      margin: 0 46px 14px 0;
+      font-size: 17px;
+      line-height: 1.3;
+      font-weight: 900;
+      letter-spacing: .2px;
+    }
+    .modal-row { display: grid; grid-template-columns: 48px 1fr; gap: 10px; margin-bottom: 10px; align-items: start; }
+    .modal-label { color: rgba(234,244,255,.72); font-weight: 900; font-size: 15px; padding-top: 6px; }
+    .modal-content-box {
+      min-height: 76px;
+      border: 1px solid rgba(75,132,198,.52);
+      background: rgba(15,35,66,.54);
+      color: rgba(234,244,255,.92);
+      border-radius: 4px;
+      padding: 10px 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .reward-box { display: grid; place-items: center; margin: 8px 0 14px; }
+    .reward-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: rgba(15,35,66,.45);
+      display: grid;
+      place-items: center;
+      font-size: 40px;
+      box-shadow: inset 0 0 0 1px rgba(75,132,198,.4);
+      position: relative;
+    }
+    .reward-icon span { position: absolute; right: 8px; bottom: 8px; font-size: 16px; color: #fff; font-weight: 900; text-shadow: 0 2px 5px rgba(0,0,0,.5); }
+    .reward-name { margin-top: 7px; color: rgba(234,244,255,.8); font-size: 13px; }
+    .banner-box {
+      height: 168px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(255,115,92,.92), rgba(96,190,255,.95));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.25);
+      margin: 4px 0 12px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      padding: 14px 16px;
+      font-size: 14px;
+      line-height: 1.45;
+      font-weight: 800;
+      text-shadow: 0 2px 8px rgba(0,0,0,.38);
+    }
+    .banner-box::before {
+      content: "⚔️  🧩  🚀  ⭐";
+      position: absolute;
+      left: 30px;
+      top: 28px;
+      font-size: 46px;
+      letter-spacing: 22px;
+      opacity: .92;
+    }
+    .modal-actions { display: flex; justify-content: center; gap: 16px; margin-top: auto; padding-top: 10px; }
+    .game-btn {
+      min-width: 128px;
+      height: 40px;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 900;
+      border: 1px solid rgba(255,255,255,.35);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.16), 0 6px 18px rgba(0,0,0,.22);
+    }
+    .game-btn.gold { background: linear-gradient(180deg, #D9BB6A, #A97A2F); }
+    .game-btn.blue { background: linear-gradient(180deg, #327EC4, #1D5B94); }
+
+    .confirm-modal {
+      width: 420px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(48,78,121,.98), rgba(33,58,96,.98));
+      border: 2px solid rgba(113,172,239,.5);
+      box-shadow: 0 22px 70px rgba(0,0,0,.42), inset 0 0 0 1px rgba(255,255,255,.08);
+      color: #EAF4FF;
+      padding: 26px 28px 22px;
+      text-align: center;
+    }
+    .confirm-modal h3 { margin: 0 0 12px; font-size: 20px; }
+    .confirm-modal p { margin: 0 0 22px; color: rgba(234,244,255,.82); font-size: 15px; }
     .toast { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%) translateY(20px); background: rgba(13,19,32,.88); color: #fff; border-radius: 999px; padding: 9px 16px; font-size: 13px; font-weight: 800; opacity: 0; pointer-events: none; transition: .2s ease; z-index: 10; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .hint-pop { position: fixed; z-index: 20; max-width: 290px; padding: 12px 14px; border-radius: 16px; background: rgba(13,19,32,.92); color: #fff; font-size: 12px; line-height: 1.55; box-shadow: 0 16px 40px rgba(13,19,32,.28); opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity .18s ease, transform .18s ease; }
@@ -100,8 +311,8 @@
           <header class="topbar">
             <h1>消息通知</h1>
             <div class="actions">
-              <button id="markRead" class="hintable" data-hint-title="全部已读" data-hint="将所有未读消息标记为已读。" data-logic="批量更新 read_status=read，并同步刷新入口未读数。">全部已读</button>
-              <button class="primary hintable" id="refresh" data-hint-title="刷新" data-hint="重新拉取最新消息和未读状态。" data-logic="按服务端最新 created_at 和 read_status 重新渲染。">刷新</button>
+              <button id="markRead" class="hintable" data-hint-title="一键已读" data-hint="将所有未读消息标记为已读。" data-logic="批量更新 read_status=read，并同步刷新入口未读数。">一键已读</button>
+              <button class="primary hintable" id="quickDelete" data-hint-title="删除已读" data-hint="删除所有已读消息。" data-logic="点击后先弹出确认弹窗；确认后只删除 read_status=read 的消息。">删除已读</button>
             </div>
           </header>
           <section class="workspace">
@@ -111,11 +322,14 @@
               <div class="nav-tab hintable" data-tab="feedback" data-hint-title="互动反馈" data-hint="展示造型库和作品圈的互动反馈。" data-logic="筛选 category=interaction；标题用 [造型库]/[作品圈] 标记来源。"><span class="name">💬 互动反馈<small>点赞/收藏/评论</small></span><span class="count">6</span></div>
             </aside>
             <div class="message-panel">
-              <div class="panel-hint"><span id="listTitle">全部消息</span><span>左滑消息可删除</span></div>
+              <div class="panel-hint"><span id="listTitle">全部消息</span><span>点击消息查看详情</span></div>
               <div class="list" id="list"></div>
             </div>
           </section>
         </main>
+        <div class="modal-mask" id="modalMask"><div class="mail-modal" id="mailModal"></div></div>
+        <div class="modal-mask" id="confirmMask"><div class="confirm-modal"><h3>删除已读</h3><p>确定删除所有已读信息吗？</p><div class="modal-actions"><button class="game-btn blue" onclick="closeQuickDeleteConfirm()">取消</button><button class="game-btn gold" onclick="confirmQuickDelete()">确定</button></div></div></div>
+        <div class="preview-mask" id="previewMask"><div class="preview-close" onclick="closeImagePreview()">×</div><div class="preview-box" id="previewBox"></div></div>
         <div class="toast" id="toast">已全部标记为已读</div>
         <div class="hint-pop" id="hintPop"></div>
       </div>
@@ -124,18 +338,31 @@
 
 <script>
 const messages = [
-  {id:1, tab:'system', unread:true, icon:'🎯', color:'orange', title:'新一期活动招募开始啦', text:'「太空基地拼搭挑战」正在招募中，快来查看活动要求', time:'刚刚', tag:'系统'},
-  {id:2, tab:'feedback', unread:true, icon:'👍', color:'green', title:'[作品圈] 你的作品收到了 18 个赞', text:'「星际塔台」收到了新的点赞，来自乐乐、豆豆等小伙伴', time:'8分钟前', tag:'互动反馈'},
-  {id:3, tab:'feedback', unread:true, icon:'💬', color:'purple', title:'[作品圈] 创达人评论了你的作品', text:'“结构很稳定，顶部造型也很有创意！”', time:'16分钟前', tag:'互动反馈'},
-  {id:4, tab:'system', unread:true, icon:'🆕', color:'blue', title:'新的造型上线了', text:'「旋转摩天轮」已加入造型库', time:'32分钟前', tag:'系统'},
-  {id:5, tab:'feedback', unread:true, icon:'🧱', color:'green', title:'[造型库] 有人跟拼了你的造型', text:'「三角桥梁」有 3 个新的跟拼作品', time:'1小时前', tag:'互动反馈'},
-  {id:6, tab:'system', unread:false, icon:'📚', color:'blue', title:'新课程上线了', text:'「稳定结构入门课」已上线', time:'2小时前', tag:'系统'},
-  {id:7, tab:'feedback', unread:true, icon:'⭐', color:'orange', title:'[造型库] 你的造型被收藏了 9 次', text:'「彩虹穹顶」收到了新的收藏', time:'今天 10:24', tag:'互动反馈'},
-  {id:8, tab:'system', unread:false, icon:'🏅', color:'purple', title:'你获得了 V 标', text:'你的主页已展示新的身份标识', time:'昨天 18:30', tag:'系统'},
-  {id:9, tab:'feedback', unread:false, icon:'🔁', color:'green', title:'[作品圈] 你的作品被分享了 6 次', text:'「机械飞鸟」被分享给更多人', time:'昨天 16:12', tag:'互动反馈'},
-  {id:10, tab:'system', unread:false, icon:'🖼️', color:'orange', title:'新作品集上线了', text:'「城市建筑灵感集」已上线', time:'昨天 14:05', tag:'系统'},
-  {id:11, tab:'system', unread:false, icon:'⚠️', color:'orange', title:'作品暂未通过审核', text:'「高塔挑战」未通过审核，请查看原因', time:'周一', tag:'系统'},
-  {id:12, tab:'feedback', unread:false, icon:'👥', color:'purple', title:'[作品圈] 你有新的粉丝', text:'安安、木木等 5 人关注了你', time:'周一', tag:'互动反馈'}
+  {id:1, tab:'system', unread:true, icon:'🎯', color:'orange', title:'新一期活动招募开始啦', text:'新一期拼搭活动正在招募中', time:'刚刚', tag:'系统', modalType:'banner', body:'新一期拼搭活动正在招募中，点击去看看可查看活动规则和参与入口。'},
+  {id:2, tab:'system', unread:true, icon:'🖼️', color:'orange', title:'新作品集上线了', text:'官方新作品集已上线', time:'8分钟前', tag:'系统', modalType:'banner', body:'官方新作品集已上线，收录多个优秀拼搭作品。'},
+  {id:3, tab:'system', unread:true, icon:'📣', color:'orange', title:'你有一条新的营销信息', text:'限时活动信息已更新', time:'16分钟前', tag:'系统', modalType:'banner', body:'限时活动信息已更新，点击去看看查看完整内容。'},
+  {id:4, tab:'system', unread:true, icon:'🆕', color:'blue', title:'造型库上新了 36 个新造型', text:'展示 4 个代表造型，点击查看完整上新列表', time:'32分钟前', tag:'系统', modalType:'modelBatch', body:'本期造型库新增 36 个官方造型。列表仅展示代表造型，点击去看看查看完整上新列表。'},
+  {id:5, tab:'system', unread:true, icon:'🔧', color:'blue', title:'造型库功能模块更新', text:'造型库新增筛选和主题合集入口', time:'1小时前', tag:'系统', modalType:'text', body:'造型库新增筛选和主题合集入口，可以更快找到想拼的造型。'},
+  {id:6, tab:'system', unread:false, icon:'📚', color:'blue', title:'新课程上线了', text:'新的 Zometool 课程已上线', time:'2小时前', tag:'系统', modalType:'text', body:'新的 Zometool 课程已上线，点击可查看课程详情。'},
+  {id:7, tab:'system', unread:false, icon:'⚠️', color:'orange', title:'作品暂未通过审核', text:'作品未通过审核，原因：封面不清晰，请修改后重新提交', time:'今天 10:24', tag:'系统', modalType:'reviewFail', body:'不通过原因：作品封面不清晰，无法准确展示拼搭主体。请重新上传清晰封面后再提交审核。', workClass:'dome', workIcon:'🏗️', imgStyle:'linear-gradient(135deg,#FF9D2E,#FFE08A)'},
+  {id:8, tab:'system', unread:false, icon:'🏅', color:'purple', title:'你获得了 V 标', text:'你的主页已展示新的身份标识', time:'昨天 18:30', tag:'系统', modalType:'reward', body:'恭喜你获得 V 标，你的主页已展示新的身份标识。', reward:'🏅', rewardName:'V 标'},
+  {id:9, tab:'system', unread:false, icon:'🎁', color:'purple', title:'造型被收藏入库', text:'你的造型已被收藏入官方入库列表', time:'昨天 16:12', tag:'系统', modalType:'text', body:'你的造型已被收藏入官方入库列表，后续可能被更多用户看到。', workClass:'bridge', workIcon:'🌉', imgStyle:'linear-gradient(135deg,#22B573,#B8F2D4)'},
+
+  {id:10, tab:'feedback', unread:true, icon:'⭐', color:'orange', title:'[造型库] 你的造型被收藏了 9 次', text:'这个入库造型收到了新的收藏', time:'昨天 14:05', tag:'互动反馈', modalType:'text', body:'你的入库造型被收藏了 9 次。收藏反馈按造型聚合展示。', workClass:'dome', workIcon:'🏛️', imgStyle:'linear-gradient(135deg,#FF9D2E,#FFE08A)'},
+  {id:11, tab:'feedback', unread:false, icon:'🧱', color:'green', title:'[造型库] 有人跟拼了你的造型', text:'这个入库造型有 3 个新的跟拼作品', time:'周一', tag:'互动反馈', modalType:'text', body:'你的入库造型有 3 个新的跟拼作品，点击可查看跟拼列表。', workClass:'bridge', workIcon:'🌉', imgStyle:'linear-gradient(135deg,#22B573,#B8F2D4)'},
+  {id:12, tab:'feedback', unread:false, icon:'🔁', color:'green', title:'[造型库] 你的造型被分享了 15 次', text:'这个入库造型被分享给更多人', time:'周一', tag:'互动反馈', modalType:'text', body:'你的入库造型被分享了 15 次。分享消息按造型聚合。', workClass:'dome', workIcon:'🏗️', imgStyle:'linear-gradient(135deg,#F7971E,#FFD200)'},
+  {id:13, tab:'feedback', unread:false, icon:'💎', color:'blue', title:'[造型库] 跟拼作品被收藏了 6 次', text:'你的跟拼作品收到了新的收藏', time:'上周五', tag:'互动反馈', modalType:'text', body:'你的跟拼作品被收藏了 6 次。', workClass:'space', workIcon:'🛰️', imgStyle:'linear-gradient(135deg,#2D74C4,#9FD8FF)'},
+  {id:14, tab:'feedback', unread:false, icon:'👍', color:'green', title:'[造型库] 跟拼作品被点赞了 24 次', text:'你的跟拼作品收到了新的点赞', time:'上周五', tag:'互动反馈', modalType:'text', body:'你的跟拼作品收到了 24 个赞。', workClass:'bridge', workIcon:'🧩', imgStyle:'linear-gradient(135deg,#11998E,#38EF7D)'},
+  {id:15, tab:'feedback', unread:false, icon:'🔁', color:'green', title:'[造型库] 跟拼作品被分享了 8 次', text:'你的跟拼作品被分享给更多人', time:'上周四', tag:'互动反馈', modalType:'text', body:'你的跟拼作品被分享了 8 次。', workClass:'bird', workIcon:'🕊️', imgStyle:'linear-gradient(135deg,#7657FF,#E6B8FF)'},
+  {id:16, tab:'feedback', unread:false, icon:'🏆', color:'orange', title:'[造型库] 跟拼作品收到了夸一夸', text:'“这个结构很稳，配色也很漂亮！”', time:'上周三', tag:'互动反馈', modalType:'comment', body:'夸一夸内容：这个结构很稳，配色也很漂亮！', workClass:'dome', workIcon:'🏆', imgStyle:'linear-gradient(135deg,#FF7A59,#FFD166)'},
+  {id:17, tab:'feedback', unread:false, icon:'💬', color:'purple', title:'[造型库] 共创达人评论了你的跟拼作品', text:'“这个角度处理得很好，可以试试加高底座。”', time:'上周三', tag:'互动反馈', modalType:'comment', body:'共创达人评论：这个角度处理得很好，可以试试加高底座。', workClass:'bird', workIcon:'🛠️', imgStyle:'linear-gradient(135deg,#8E2DE2,#4A00E0)'},
+
+  {id:18, tab:'feedback', unread:true, icon:'👍', color:'green', title:'[作品圈] 你的作品收到了 18 个赞', text:'这件作品收到了新的点赞，来自乐乐、豆豆等小伙伴', time:'上周二', tag:'互动反馈', modalType:'text', body:'这件作品收到了 18 个赞。作品标题可为空，但消息中一定展示作品图。', workClass:'space', workIcon:'🚀', imgStyle:'linear-gradient(135deg,#4B6BFF,#88D8FF)'},
+  {id:19, tab:'feedback', unread:false, icon:'⭐', color:'orange', title:'[作品圈] 你的作品被收藏了 12 次', text:'这件作品收到了新的收藏', time:'上周二', tag:'互动反馈', modalType:'text', body:'你的作品被收藏了 12 次。收藏消息按作品聚合。', workClass:'space', workIcon:'🛰️', imgStyle:'linear-gradient(135deg,#2D74C4,#9FD8FF)'},
+  {id:20, tab:'feedback', unread:false, icon:'🔁', color:'green', title:'[作品圈] 你的作品被分享了 6 次', text:'这件作品被分享给更多人', time:'上周一', tag:'互动反馈', modalType:'text', body:'你的作品被分享了 6 次。分享反馈按作品聚合展示。', workClass:'bird', workIcon:'🕊️', imgStyle:'linear-gradient(135deg,#7657FF,#E6B8FF)'},
+  {id:21, tab:'feedback', unread:false, icon:'🏆', color:'orange', title:'[作品圈] 你的作品收到了夸一夸', text:'“这件作品太有创意了！”', time:'上周一', tag:'互动反馈', modalType:'comment', body:'夸一夸内容：这件作品太有创意了！', workClass:'dome', workIcon:'🏆', imgStyle:'linear-gradient(135deg,#FF7A59,#FFD166)'},
+  {id:22, tab:'feedback', unread:false, icon:'💬', color:'purple', title:'[作品圈] 共创达人评论了你的作品', text:'“结构很稳定，顶部造型也很有创意！”', time:'上周一', tag:'互动反馈', modalType:'comment', body:'共创达人评论：结构很稳定，顶部造型也很有创意！', workClass:'space', workIcon:'🚀', imgStyle:'linear-gradient(135deg,#4B6BFF,#88D8FF)'},
+  {id:23, tab:'feedback', unread:false, icon:'👥', color:'purple', title:'[作品圈] 你有新的粉丝', text:'安安、木木等 5 人关注了你', time:'上周一', tag:'互动反馈', modalType:'text', body:'你有新的粉丝。新增粉丝可在 30 分钟内聚合。', workClass:'fans', workIcon:'👥', workName:'粉丝'}
 ];
 let currentTab = 'all';
 let currentId = null;
@@ -146,6 +373,11 @@ const toast = document.getElementById('toast');
 const sideBadge = document.getElementById('sideBadge');
 const listTitle = document.getElementById('listTitle');
 const hintPop = document.getElementById('hintPop');
+const modalMask = document.getElementById('modalMask');
+const mailModal = document.getElementById('mailModal');
+const previewMask = document.getElementById('previewMask');
+const confirmMask = document.getElementById('confirmMask');
+const previewBox = document.getElementById('previewBox');
 let hintTimer = null;
 function filtered(){ return currentTab === 'all' ? messages : messages.filter(m => m.tab === currentTab); }
 function pickDefaultMessage(){ const data = filtered(); return data.find(m => m.unread) || data[0] || null; }
@@ -156,44 +388,72 @@ function renderList(){
   listTitle.textContent = currentTab === 'all' ? '全部消息' : currentTab === 'system' ? '系统消息' : '互动反馈';
   if(!data.length){ list.innerHTML = '<div style="height:100%;display:grid;place-items:center;color:#758095;font-weight:800;">暂无消息</div>'; return; }
   list.innerHTML = data.map(m => `
-    <div class="swipe-row ${openSwipeId === m.id ? 'open' : ''}" data-id="${m.id}">
-      <button class="delete-action" data-id="${m.id}">删除</button>
-      <article class="card ${m.unread ? 'unread' : ''} ${currentId === m.id ? 'selected' : ''} hintable" data-id="${m.id}" data-hint-title="消息条" data-hint="点击消息条可标记已读；左滑可露出删除按钮。" data-logic="点击后只更新当前消息状态，不进入详情页；列表承载主要浏览操作。">
-        <div class="thumb ${m.color}">${m.icon}</div>
+    <div class="swipe-row" data-id="${m.id}">
+      <article class="card ${m.unread ? 'unread' : ''} ${currentId === m.id ? 'selected' : ''} hintable" data-id="${m.id}" data-hint-title="消息条" data-hint="点击消息条会打开弹窗。" data-logic="不同模块使用不同弹窗模板：奖励型、图文活动型、评论/文本型。">
+        ${m.modalType === 'modelBatch' ? `<div class="batch-thumb"><span class="a">🏗️</span><span class="b">🌉</span><span class="c">🎡</span><span class="d">🚀</span></div>` : (m.workClass ? `<div class="work-thumb ${m.workClass}">${m.workIcon || m.icon}</div>` : `<div class="thumb ${m.color}">${m.icon}</div>`)}
         <div><h3>${m.title}</h3><p>${m.text}</p></div>
         <div class="meta"><span>${m.time}</span><span class="pill ${m.tab === 'system' ? 'system' : 'feedback'}">${m.tag}</span></div>
       </article>
     </div>`).join('');
-  document.querySelectorAll('.card').forEach(card => card.onclick = () => {
-    if(dragState && dragState.moved) return;
-    const id = Number(card.dataset.id);
-    if(openSwipeId && openSwipeId !== id){ openSwipeId = null; renderList(); return; }
-    if(openSwipeId === id){ openSwipeId = null; renderList(); return; }
-    selectMessage(id);
-  });
-  document.querySelectorAll('.delete-action').forEach(btn => btn.onclick = e => { e.stopPropagation(); deleteMessage(Number(btn.dataset.id)); });
-  bindSwipeRows(); bindHints();
+  document.querySelectorAll('.card').forEach(card => card.onclick = () => selectMessage(Number(card.dataset.id)));
+  bindHints();
 }
-function bindSwipeRows(){
-  document.querySelectorAll('.swipe-row').forEach(row => {
-    const card = row.querySelector('.card');
-    card.addEventListener('pointerdown', e => { dragState = { id:Number(row.dataset.id), startX:e.clientX, startY:e.clientY, moved:false }; card.setPointerCapture?.(e.pointerId); });
-    card.addEventListener('pointermove', e => {
-      if(!dragState || dragState.id !== Number(row.dataset.id)) return;
-      const dx = e.clientX - dragState.startX, dy = e.clientY - dragState.startY;
-      if(Math.abs(dy) > 18 && Math.abs(dy) > Math.abs(dx)) return;
-      if(dx < -6 || (openSwipeId === dragState.id && dx > 6)) { dragState.moved = true; row.classList.add('swiping'); const base = openSwipeId === dragState.id ? -82 : 0; const next = Math.max(-82, Math.min(0, base + dx)); card.style.transform = `translateX(${next}px)`; }
-    });
-    card.addEventListener('pointerup', e => {
-      if(!dragState || dragState.id !== Number(row.dataset.id)) return;
-      const dx = e.clientX - dragState.startX, wasMoved = dragState.moved;
-      card.style.transform = ''; row.classList.remove('swiping');
-      if(wasMoved){ if(dx < -38) openSwipeId = dragState.id; else if(dx > 28) openSwipeId = null; dragState = { moved:true }; setTimeout(()=>{dragState=null;},0); renderList(); } else dragState = null;
-    });
-  });
-}
-function selectMessage(id){ currentId = id; const m = messages.find(x => x.id === id); if(m) m.unread = false; updateBadges(); renderList(); }
+function bindSwipeRows(){}
+function selectMessage(id){ currentId = id; const m = messages.find(x => x.id === id); if(m) m.unread = false; updateBadges(); renderList(); openMessageModal(m); }
 function deleteMessage(id){ const index = messages.findIndex(m => m.id === id); if(index >= 0) messages.splice(index, 1); if(currentId === id) currentId = pickDefaultMessage()?.id || null; openSwipeId = null; updateBadges(); renderList(); showToast('消息已删除'); }
+
+function openMessageModal(m){
+  if(!m) return;
+  clearTimeout(hintTimer);
+  hideHint();
+  const type = m.modalType || (m.tab === 'system' ? 'text' : 'comment');
+  const body = m.body || m.text;
+  if(type === 'modelBatch'){
+    mailModal.innerHTML = `<div class="modal-close" onclick="closeMessageModal()">×</div><h3 class="modal-title">${m.title}</h3><div class="modal-content-box" style="min-height:auto;margin-bottom:10px;">${body}</div><div class="model-gallery"><div class="model-item" style="background:linear-gradient(135deg,#4B6BFF,#88D8FF);">🏗️<small>天空塔</small></div><div class="model-item" style="background:linear-gradient(135deg,#22B573,#B8F2D4);">🌉<small>三角桥</small></div><div class="model-item" style="background:linear-gradient(135deg,#FF9D2E,#FFE08A);">🎡<small>摩天轮</small></div><div class="model-item" style="background:linear-gradient(135deg,#7657FF,#E6B8FF);">🚀<small>火箭站</small></div></div><div class="model-more">仅展示 4 个代表造型，完整 36 个可进入造型库查看</div><div class="modal-actions"><button class="game-btn blue" onclick="deleteMessage(${m.id}); closeMessageModal();">删除</button><button class="game-btn gold" onclick="closeMessageModal(); showToast('进入造型库')">去看看</button></div>`;
+  } else if(type === 'banner'){
+    mailModal.innerHTML = `<div class="modal-close" onclick="closeMessageModal()">×</div><h3 class="modal-title">${m.title}</h3><div class="banner-box">${body}</div><div class="modal-actions"><button class="game-btn blue" onclick="deleteMessage(${m.id}); closeMessageModal();">删除</button><button class="game-btn gold" onclick="closeMessageModal(); showToast('进入目标页面')">去看看</button></div>`;
+  } else if(type === 'reward'){
+    mailModal.innerHTML = `<div class="modal-close" onclick="closeMessageModal()">×</div><h3 class="modal-title">提示</h3><div class="modal-row"><div class="modal-label">标题</div><div class="modal-content-box" style="min-height:auto;">${m.title}</div></div><div class="modal-row"><div class="modal-label">内容</div><div class="modal-content-box">${body}</div></div><div class="reward-box"><div class="reward-icon">${m.reward || '💎'}<span>100</span></div><div class="reward-name">${m.rewardName || '奖励'}</div></div><div class="modal-actions"><button class="game-btn gold" onclick="closeMessageModal(); showToast('已领取')">领取</button></div>`;
+  } else if(type === 'reviewFail'){
+    const bg = m.imgStyle || 'linear-gradient(135deg,#FF9D2E,#FFE08A)';
+    mailModal.innerHTML = `<div class="modal-close" onclick="closeMessageModal()">×</div><h3 class="modal-title">作品暂未通过审核</h3><div class="modal-split"><div class="modal-split-image" style="background:${bg}" onclick="openImagePreview('${m.workIcon || m.icon}', '${m.title.replace(/'/g, "\'")}', '${bg.replace(/'/g, "\'")}')">${m.workIcon || m.icon}</div><div class="modal-split-info"><div class="modal-row"><div class="modal-label">标题</div><div class="modal-content-box" style="min-height:auto;">${m.title}</div></div><div class="modal-row"><div class="modal-label">原因</div><div class="modal-content-box">${body}</div></div><div class="modal-actions"><button class="game-btn blue" onclick="deleteMessage(${m.id}); closeMessageModal();">删除</button><button class="game-btn gold" onclick="closeMessageModal(); showToast('进入修改页')">去修改</button></div></div></div>`;
+  } else {
+    const action = type === 'comment' ? '查看评论' : '去查看';
+    if(m.workClass){
+      const bg = m.imgStyle || 'linear-gradient(135deg,#4B6BFF,#88D8FF)';
+      mailModal.innerHTML = `<div class="modal-close" onclick="closeMessageModal()">×</div><h3 class="modal-title">提示</h3><div class="modal-split"><div class="modal-split-image" style="background:${bg}" onclick="openImagePreview('${m.workIcon || m.icon}', '${m.title.replace(/'/g, "\'")}', '${bg.replace(/'/g, "\'")}')">${m.workIcon || m.icon}</div><div class="modal-split-info"><div class="modal-row"><div class="modal-label">标题</div><div class="modal-content-box" style="min-height:auto;">${m.title}</div></div><div class="modal-row"><div class="modal-label">内容</div><div class="modal-content-box">${body}</div></div><div class="modal-actions"><button class="game-btn blue" onclick="deleteMessage(${m.id}); closeMessageModal();">删除</button><button class="game-btn gold" onclick="closeMessageModal(); showToast('进入目标页面')">${action}</button></div></div></div>`;
+    } else {
+      mailModal.innerHTML = `<div class="modal-close" onclick="closeMessageModal()">×</div><h3 class="modal-title">提示</h3><div class="modal-row"><div class="modal-label">标题</div><div class="modal-content-box" style="min-height:auto;">${m.title}</div></div><div class="modal-row"><div class="modal-label">内容</div><div class="modal-content-box">${body}</div></div><div class="modal-actions"><button class="game-btn blue" onclick="deleteMessage(${m.id}); closeMessageModal();">删除</button><button class="game-btn gold" onclick="closeMessageModal(); showToast('进入目标页面')">${action}</button></div>`;
+    }
+  }
+  modalMask.classList.add('show');
+}
+function closeMessageModal(){ modalMask.classList.remove('show'); }
+function openImagePreview(icon, title, bg){
+  previewBox.textContent = icon;
+  previewBox.dataset.title = title;
+  previewBox.style.background = bg;
+  previewMask.classList.add('show');
+}
+function closeImagePreview(){ previewMask.classList.remove('show'); }
+modalMask.addEventListener('click', e => { if(e.target === modalMask) closeMessageModal(); });
+previewMask.addEventListener('click', e => { if(e.target === previewMask) closeImagePreview(); });
+
+function openQuickDeleteConfirm(){
+  clearTimeout(hintTimer);
+  hideHint();
+  confirmMask.classList.add('show');
+}
+function closeQuickDeleteConfirm(){ confirmMask.classList.remove('show'); }
+function confirmQuickDelete(){
+  for(let i = messages.length - 1; i >= 0; i--){ if(!messages[i].unread) messages.splice(i, 1); }
+  currentId = pickDefaultMessage()?.id || null;
+  closeQuickDeleteConfirm();
+  updateBadges();
+  renderList();
+  showToast('已删除所有已读消息');
+}
+confirmMask.addEventListener('click', e => { if(e.target === confirmMask) closeQuickDeleteConfirm(); });
 function updateBadges(){
   const unread = messages.filter(m => m.unread).length;
   sideBadge.textContent = unread; sideBadge.style.display = unread ? 'grid' : 'none';
@@ -209,12 +469,12 @@ function bindHints(){
     el.addEventListener('mouseleave', () => { clearTimeout(hintTimer); hideHint(); });
   });
 }
-function showHint(el,e){ const title=el.dataset.hintTitle||'功能说明', text=el.dataset.hint||'暂无说明', logic=el.dataset.logic||'按当前模块规则处理。'; hintPop.innerHTML=`<strong>${title}</strong>${text}<div class="logic"><b>逻辑：</b>${logic}</div>`; positionHint(e); hintPop.classList.add('show'); }
+function showHint(el,e){ if(modalMask.classList.contains('show')) return; const title=el.dataset.hintTitle||'功能说明', text=el.dataset.hint||'暂无说明', logic=el.dataset.logic||'按当前模块规则处理。'; hintPop.innerHTML=`<strong>${title}</strong>${text}<div class="logic"><b>逻辑：</b>${logic}</div>`; positionHint(e); hintPop.classList.add('show'); }
 function positionHint(e){ const pad=14, rectW=290; const x=Math.min(window.innerWidth-rectW-pad,e.clientX+14); const y=Math.min(window.innerHeight-100,e.clientY+16); hintPop.style.left=Math.max(pad,x)+'px'; hintPop.style.top=Math.max(pad,y)+'px'; }
 function hideHint(){ hintPop.classList.remove('show'); }
 document.querySelectorAll('.nav-tab').forEach(t => t.onclick = () => { currentTab=t.dataset.tab; document.querySelectorAll('.nav-tab').forEach(x=>x.classList.toggle('active',x===t)); currentId = pickDefaultMessage()?.id || null; openSwipeId=null; renderList(); });
 document.getElementById('markRead').onclick = () => { messages.forEach(m=>m.unread=false); updateBadges(); renderList(); showToast('已全部标记为已读'); };
-document.getElementById('refresh').onclick = () => showToast('消息已刷新');
+document.getElementById('quickDelete').onclick = openQuickDeleteConfirm;
 currentId = pickDefaultMessage()?.id || null; updateBadges(); renderList(); bindHints();
 </script>
 </body>
